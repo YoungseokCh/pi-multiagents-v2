@@ -27,6 +27,8 @@ No markdown-backed agents are needed or configured by default.
 ## Install
 
 ```bash
+pi install npm:pi-multiagents-v2
+# or install directly from GitHub
 pi install git:github.com/YoungseokCh/pi-multiagents-v2
 ```
 
