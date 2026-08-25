@@ -5,6 +5,7 @@
   "type": "module",
   "keywords": ["pi-package", "pi-extension", "subagents", "multi-agent"],
   "license": "MIT",
+  "repository": "github:YoungseokCh/pi-multiagents-v2",
   "scripts": {
     "check": "tsc --noEmit && node --test test/*.test.ts"
   },
