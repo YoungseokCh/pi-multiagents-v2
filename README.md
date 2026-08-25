@@ -49,7 +49,7 @@ This is a behavioral port inspired by OpenAI Codex Multi-Agent V2, with these di
 - Does not restore the agent tree after reload, session replacement, or process restart
 - Approximates Codex's scheduling, prompts, schemas, and edge-case behavior
 
-## Reference
+## References
 
 - https://github.com/openai/codex/blob/main/codex-rs/core/src/session/multi_agents.rs
 - https://github.com/openai/codex/tree/main/codex-rs/core/src/tools/handlers/multi_agents_v2
