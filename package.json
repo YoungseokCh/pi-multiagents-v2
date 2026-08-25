@@ -1,16 +1,23 @@
 {
   "name": "pi-multiagents-v2",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Codex Multi-Agent V2-style hierarchical subagents for Pi",
   "type": "module",
-  "keywords": ["pi-package", "pi-extension", "subagents", "multi-agent"],
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "subagents",
+    "multi-agent"
+  ],
   "license": "MIT",
   "repository": "github:YoungseokCh/pi-multiagents-v2",
   "scripts": {
     "check": "tsc --noEmit && node --test test/*.test.ts"
   },
   "pi": {
-    "extensions": ["./extensions/index.ts"]
+    "extensions": [
+      "./extensions/index.ts"
+    ]
   },
   "peerDependencies": {
     "@earendil-works/pi-agent-core": "*",
