@@ -314,7 +314,7 @@ export class TeamManager {
         const output = lastAssistantText(node.session!.messages);
         node.status = { completed: output };
         if (node.parent) {
-          void this.deliver(node.path, node.parent, "FINAL_ANSWER", output ?? "(no output)", false).catch(() => undefined);
+          await this.deliver(node.path, node.parent, "FINAL_ANSWER", output ?? "(no output)", false).catch(() => undefined);
         }
       }
     } catch (error) {
@@ -324,7 +324,7 @@ export class TeamManager {
         const message = error instanceof Error ? error.message : String(error);
         node.status = { errored: message };
         if (node.parent) {
-          void this.deliver(node.path, node.parent, "FINAL_ANSWER", `Agent error: ${message}`, false).catch(() => undefined);
+          await this.deliver(node.path, node.parent, "FINAL_ANSWER", `Agent error: ${message}`, false).catch(() => undefined);
         }
       }
     } finally {
