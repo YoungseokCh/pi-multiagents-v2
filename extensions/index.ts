@@ -39,6 +39,19 @@ const SELF_PATH = safeRealpath(fileURLToPath(import.meta.url));
 const MAX_CHILD_RUNS = positiveInteger(process.env.PI_MULTIAGENTS_MAX_CONCURRENCY, 8);
 const MAIL_TYPE = "pi-multiagents-v2-message";
 
+export function createChildSessionManager(
+  cwd: string,
+  sourceSessionManager: Pick<SessionManager, "getSessionFile" | "getSessionDir">,
+  path: string,
+): SessionManager {
+  const parentSession = sourceSessionManager.getSessionFile();
+  const sessionManager = parentSession
+    ? SessionManager.create(cwd, sourceSessionManager.getSessionDir(), { parentSession })
+    : SessionManager.inMemory(cwd);
+  sessionManager.appendSessionInfo(path);
+  return sessionManager;
+}
+
 const ROOT_INSTRUCTIONS = `
 You are /root, the primary agent in a team of Pi agents.
 Use spawn_agent for concrete, bounded work that can run independently while you continue useful local work. Child agents can recursively spawn their own children. All agents share the same working directory and filesystem, so give coding agents disjoint write scopes.
@@ -221,7 +234,11 @@ export class TeamManager {
       if (!model) throw new Error("No model is available for the child agent");
 
       const forkedMessages = selectForkMessages(this.sourceMessages(source, ctx), params.fork_turns);
-      const sessionManager = SessionManager.inMemory(this.cwd);
+      const sessionManager = createChildSessionManager(
+        this.cwd,
+        source === ROOT ? ctx.sessionManager : this.requireNode(source).session!.sessionManager,
+        path,
+      );
       for (const message of structuredClone(forkedMessages)) {
         sessionManager.appendMessage(message as Parameters<SessionManager["appendMessage"]>[0]);
       }
@@ -373,7 +390,7 @@ export class TeamManager {
     this.signalActivity(target, "mailbox");
     if (target === ROOT) {
       this.pi.sendMessage(
-        { customType: MAIL_TYPE, content: envelope, display: true, details: { source, target, type } },
+        { customType: MAIL_TYPE, content: envelope, display: false, details: { source, target, type } },
         { triggerTurn, deliverAs: "steer" },
       );
       return;
