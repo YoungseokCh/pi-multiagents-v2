@@ -1,3 +1,6 @@
+/** Pure types and helpers for agent paths, context forks, and message envelopes. */
+
+/** Lifecycle state exposed for an agent node. */
 export type AgentStatus =
   | "pending_init"
   | "running"
@@ -7,14 +10,17 @@ export type AgentStatus =
   | { completed: string | null }
   | { errored: string };
 
+/** Message kinds exchanged between collaborating agents. */
 export type MessageEnvelopeType = "NEW_TASK" | "MESSAGE" | "FINAL_ANSWER";
 
+/** Minimal message shape needed to build a child context fork. */
 type ForkableMessage = {
   role: string;
   content?: unknown;
   toolCallId?: string;
 };
 
+/** Builds and validates a canonical child path. */
 export function childPath(parent: string, taskName: string): string {
   if (!/^[a-z0-9_]+$/.test(taskName)) {
     throw new Error("task_name must contain only lowercase letters, digits, and underscores");
@@ -22,6 +28,7 @@ export function childPath(parent: string, taskName: string): string {
   return `${parent}/${taskName}`;
 }
 
+/** Resolves a relative or absolute agent reference. */
 export function resolveTarget(current: string, target: string): string {
   const value = target.trim();
   if (!value) throw new Error("target cannot be empty");
@@ -29,6 +36,7 @@ export function resolveTarget(current: string, target: string): string {
   return value.startsWith("/") ? value : `${current}/${value}`;
 }
 
+/** Parses the requested parent-history fork mode. */
 export function parseForkTurns(value: string | undefined): "none" | "all" | number {
   const normalized = value?.trim().toLowerCase() || "all";
   if (normalized === "none" || normalized === "all") return normalized;
@@ -39,6 +47,7 @@ export function parseForkTurns(value: string | undefined): "none" | "all" | numb
   return count;
 }
 
+/** Extracts tool-call identifiers from an assistant message. */
 function toolCallIds(message: ForkableMessage): string[] {
   if (message.role !== "assistant" || !Array.isArray(message.content)) return [];
   return message.content.flatMap((part) => {
@@ -70,6 +79,7 @@ export function removeIncompleteTail<T extends ForkableMessage>(messages: readon
   return calls.every((id) => results.has(id)) ? copy : copy.slice(0, assistantIndex);
 }
 
+/** Selects the complete messages copied into a child session. */
 export function selectForkMessages<T extends ForkableMessage>(
   messages: readonly T[],
   forkTurns: string | undefined,
@@ -84,6 +94,7 @@ export function selectForkMessages<T extends ForkableMessage>(
   return complete.slice(userIndexes[userIndexes.length - mode]);
 }
 
+/** Formats a model-visible inter-agent message envelope. */
 export function formatEnvelope(
   type: MessageEnvelopeType,
   recipient: string,
