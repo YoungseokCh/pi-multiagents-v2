@@ -6,10 +6,47 @@ import type { TeamManager } from "../extensions/team-manager.ts";
 
 const theme = {
   fg: (_color: string, text: string) => text,
+  bold: (text: string) => text,
 } as Theme;
 
-const context = (isError = false) => ({ isError }) as any;
+const context = (isError = false, args: Record<string, unknown> = {}) => ({ isError, args }) as any;
 const render = (component: { render(width: number): string[] }) => component.render(80).map((line) => line.trimEnd());
+
+test("Codex-style spawn rendering", () => {
+  const spawn = createCollaborationTools({} as TeamManager, "/root").find((tool) => tool.name === "spawn_agent")!;
+  const args = {
+    task_name: "root_cause_242",
+    message: "Find the root cause.",
+  };
+
+  assert.equal(spawn.renderShell, "self");
+  assert.deepEqual(render(spawn.renderCall!(args, theme, context(false, args))), []);
+  assert.deepEqual(
+    render(
+      spawn.renderResult!(
+        {
+          content: [{ type: "text", text: "ok" }],
+          details: { task_name: "/root/root_cause_242", status: "running" },
+        },
+        { expanded: false, isPartial: false },
+        theme,
+        context(false, args),
+      ),
+    ),
+    ["• Started `/root/root_cause_242`"],
+  );
+  assert.deepEqual(
+    render(
+      spawn.renderResult!(
+        { content: [{ type: "text", text: 'Full-history forks inherit model; use fork_turns="none"' }], details: undefined },
+        { expanded: false, isPartial: false },
+        theme,
+        context(true, args),
+      ),
+    ),
+    ["• Agent spawn failed", '  └ Full-history forks inherit model; use fork_turns="none"'],
+  );
+});
 
 test("Codex-style list and wait rendering", () => {
   const tools = createCollaborationTools({} as TeamManager, "/root");

@@ -23,6 +23,7 @@ export function createCollaborationTools(team: TeamManager, source: string): Too
     description:
       "Spawn an agent for a concrete, bounded subtask. The child gets a canonical path, independent context, shared filesystem, the same active tools, and recursive delegation tools.",
     promptSnippet: "Spawn a child agent for independent parallel work",
+    renderShell: "self",
     parameters: Type.Object(
       {
         task_name: Type.String({ description: "Lowercase letters, digits, and underscores" }),
@@ -39,6 +40,18 @@ export function createCollaborationTools(team: TeamManager, source: string): Too
     executionMode: "sequential",
     async execute(_id, params, _signal, _onUpdate, ctx) {
       return toolResult(await team.spawn(source, params, ctx));
+    },
+    renderCall() {
+      return new Container();
+    },
+    renderResult(result, _options, theme, context) {
+      if (context.isError) {
+        const error = result.content.find((part) => part.type === "text")?.text ?? "Unknown error";
+        return new Text(`${theme.fg("error", "• Agent spawn failed")}\n${theme.fg("muted", `  └ ${error}`)}`, 0, 0);
+      }
+      const path = (result.details as { task_name?: string } | undefined)?.task_name ?? context.args.task_name;
+      const title = theme.fg("muted", "• ") + theme.fg("toolTitle", theme.bold("Started ")) + theme.fg("accent", `\`${path}\``);
+      return new Text(title, 0, 0);
     },
   });
 
