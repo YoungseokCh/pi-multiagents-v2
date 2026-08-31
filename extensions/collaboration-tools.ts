@@ -2,6 +2,7 @@
 
 import { StringEnum } from "@earendil-works/pi-ai";
 import { defineTool, type ToolDefinition } from "@earendil-works/pi-coding-agent";
+import { Container, Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 import type { TeamManager } from "./team-manager.ts";
 
@@ -77,12 +78,20 @@ export function createCollaborationTools(team: TeamManager, source: string): Too
     label: "Wait Agent",
     description: "Wait for mailbox activity, steered user input, or timeout. Actual mailbox content arrives separately in context.",
     promptSnippet: "Wait for agent mail only when blocked on it",
+    renderShell: "self",
     parameters: Type.Object(
       { timeout_ms: Type.Optional(Type.Integer({ minimum: 0, maximum: 3_600_000 })) },
       { additionalProperties: false },
     ),
     async execute(_id, params, signal) {
       return toolResult(await team.wait(source, params.timeout_ms, signal));
+    },
+    renderCall(_args, theme) {
+      return new Text(theme.fg("muted", "• Waiting for agents"), 0, 0);
+    },
+    renderResult(_result, _options, theme, context) {
+      const message = context.isError ? theme.fg("error", "• Wait failed") : theme.fg("muted", "• Finished waiting");
+      return new Text(`\n${message}`, 0, 0);
     },
   });
 
@@ -92,12 +101,19 @@ export function createCollaborationTools(team: TeamManager, source: string): Too
     label: "List Agents",
     description: "List agents and their latest status, optionally below a task-path prefix.",
     promptSnippet: "Inspect the current hierarchical agent tree",
+    renderShell: "self",
     parameters: Type.Object(
       { path_prefix: Type.Optional(Type.String({ description: "Relative or canonical task path" })) },
       { additionalProperties: false },
     ),
     async execute(_id, params) {
       return toolResult(team.list(source, params.path_prefix));
+    },
+    renderCall() {
+      return new Container();
+    },
+    renderResult() {
+      return new Container();
     },
   });
 

@@ -57,6 +57,7 @@ This is a behavioral port inspired by OpenAI Codex Multi-Agent V2, with these di
 - Keep child sessions in-memory when the parent session is ephemeral.
 - Hide inter-agent mailbox envelopes from the root transcript while retaining them in model context.
 - Await final-answer delivery before releasing a child run.
+- Match Codex's TUI behavior by hiding `list_agents` and rendering `wait_agent` as waiting/finished lifecycle status.
 
 Child-session navigation is intended after the team finishes because switching sessions shuts down an active team.
 
