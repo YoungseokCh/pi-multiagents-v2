@@ -4,26 +4,6 @@ A Pi extension implementing the core behavior of Codex Multi-Agent V2 with in-pr
 
 No markdown-backed agents are needed or configured by default.
 
-## Features
-
-- Hierarchical task paths (`/root/research/api`)
-- Recursive subagent spawning
-- Independent context windows with `fork_turns: "none" | "all" | "N"`
-- Shared working directory and filesystem
-- Asynchronous agent mailboxes and automatic final-answer delivery
-- Persistent child context for follow-up tasks
-- Configurable child-run concurrency (`PI_MULTIAGENTS_MAX_CONCURRENCY`, default `8`)
-- Inherited model, reasoning level, active tools, extensions, skills, and context files
-
-## Tools
-
-- `spawn_agent`
-- `send_message`
-- `followup_task`
-- `wait_agent`
-- `list_agents`
-- `interrupt_agent`
-
 ## Install
 
 ```bash
@@ -38,16 +18,36 @@ Or test without installing:
 pi -e git:github.com/YoungseokCh/pi-multiagents-v2
 ```
 
-## Notes
+## Features
 
-Agents share a filesystem, so delegated coding tasks should use disjoint write scopes.
+- Hierarchical task paths (`/root/research/api`)
+- Recursive subagent spawning
+- Independent context windows with `fork_turns: "none" | "all" | "N"`
+- Asynchronous agent mailboxes and automatic final-answer delivery
+- Persistent child context for follow-up tasks
+- Configurable child-run concurrency (`PI_MULTIAGENTS_MAX_CONCURRENCY`, default `8`)
 
-This is a behavioral port inspired by OpenAI Codex Multi-Agent V2, with these differences:
+## Tools
 
-- Uses Pi `AgentSession` instances instead of Codex's Rust `ThreadManager`
-- Copies messages for context forks instead of forking native Codex rollouts
-- Does not restore the agent tree after reload, session replacement, or process restart
-- Approximates Codex's scheduling, prompts, schemas, and edge-case behavior
+These tools are used by master agent to orchestrate multiagents-v2. (not exposed to user)
+
+- `spawn_agent`: Starts a child agent for an independent subtask.
+  - task_name: string
+  - message: string
+  - fork_turns: "none" | "all" (default) | "N"
+  - reasoning_effort: "off" | "minimal" | "low" | "medium" | "high" | "xhigh" | "max"
+- `send_message`: Sends information without waking an idle agent.
+  - target: string
+  - message: string
+- `followup_task`: Assigns more work and starts or redirects an agent.
+  - target: string
+  - message: string
+- `wait_agent`: Waits for agent messages, user input, or timeout.
+  - timeout_ms: int
+- `list_agents`: Lists agents and their current statuses.
+  - path_prefix: string
+- `interrupt_agent`: Stops an agent's current turn while preserving its context.
+  - target: string
 
 ## Changelog
 
