@@ -2,7 +2,7 @@
 
 A Pi extension implementing the core behavior of Codex Multi-Agent V2 with in-process `AgentSession` instances.
 
-**No markdown-backed agents are needed or configured by default.**
+**No markdown-backed agents(reviewer, explorer, coder, ... yuck!) are needed or configured by default.**
 
 ## Install
 
