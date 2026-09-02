@@ -51,7 +51,7 @@ This is a behavioral port inspired by OpenAI Codex Multi-Agent V2, with these di
 
 ## Changelog
 
-### v0.1.2 (unreleased)
+### v0.1.2
 
 - Persist named child sessions under persisted parents, linked through `parentSession` for native `/resume` and `/tree` inspection.
 - Keep child sessions in-memory when the parent session is ephemeral.

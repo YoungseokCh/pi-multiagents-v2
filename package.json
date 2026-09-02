@@ -1,6 +1,6 @@
 {
   "name": "pi-multiagents-v2",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Codex Multi-Agent V2-style hierarchical subagents for Pi",
   "type": "module",
   "keywords": [
